@@ -1,8 +1,6 @@
+/target/
+/keys/
 node_modules/
-website/node_modules/
-website/.next/
-website/out/
-website/.vercel/
 
 .env*
 !.env.example
