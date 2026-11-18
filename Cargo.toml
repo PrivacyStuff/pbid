@@ -1,0 +1,67 @@
+[package]
+name = "pbid"
+version = "0.1.0"
+edition = "2021"
+description = "List a wallet NFT into a program account. Separate from pescrow."
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["host-proof"]
+# Host tests prove and verify. The BPF build uses `--no-default-features`.
+host-proof = [
+    "ark-bn254/std",
+    "ark-ff/std",
+    "dep:rand_core",
+    "dep:ark-groth16",
+    "dep:ark-r1cs-std",
+    "dep:ark-relations",
+    "dep:ark-serialize",
+    "dep:ark-snark",
+    "dep:ark-std",
+    "dep:chacha20poly1305",
+    "dep:x25519-dalek",
+    "dep:serde",
+    "dep:serde_json",
+]
+# Host tests stay on the parser. The BPF target compiles the entrypoint and CPIs.
+bpf-entrypoint = ["dep:pinocchio"]
+
+[dependencies]
+pinocchio = { version = "0.11.2", default-features = false, features = ["alloc", "copy", "cpi"], optional = true }
+ark-groth16 = { version = "0.4.0", optional = true }
+rand_core = { version = "0.6.4", features = ["getrandom"], optional = true }
+ark-r1cs-std = { version = "0.4.0", optional = true }
+ark-relations = { version = "0.4.0", optional = true }
+ark-serialize = { version = "0.4.2", optional = true }
+ark-snark = { version = "0.4.0", optional = true }
+ark-std = { version = "0.4.0", optional = true }
+chacha20poly1305 = { version = "0.10.1", optional = true, default-features = false, features = ["alloc"] }
+x25519-dalek = { version = "2.0.1", optional = true, default-features = false, features = ["static_secrets"] }
+serde = { version = "1.0.228", features = ["derive"], optional = true }
+serde_json = { version = "1.0.149", optional = true }
+
+# The program hashes through the `sol_poseidon` syscall. Host code uses the
+# syscall's own implementation, light-poseidon 0.2 on arkworks 0.4.
+[target.'cfg(not(target_os = "solana"))'.dependencies]
+ark-bn254 = { version = "0.4.0", default-features = false, features = ["curve"] }
+ark-ff = { version = "0.4.2", default-features = false }
+light-poseidon = "0.2.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[dev-dependencies]
+litesvm = "0.18.2"
+solana-account = "4.7.0"
+solana-address = "2.7.0"
+solana-compute-budget = "4.3.2"
+solana-instruction = "3.5.1"
+solana-keypair = "3.1.2"
+solana-message = "4.6.0"
+solana-signer = "3.0.1"
+solana-system-interface = "3.3.0"
+solana-transaction = "4.3.0"
+solana-transaction-error = "3.4.0"

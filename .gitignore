@@ -1,5 +1,6 @@
 /target/
-/keys/
+/keys/*
+!/keys/pbid_pk.bin
 node_modules/
 
 .env*
